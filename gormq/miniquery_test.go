@@ -1,4 +1,4 @@
-package commons
+package gormq
 
 import (
 	"fmt"

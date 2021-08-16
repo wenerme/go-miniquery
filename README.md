@@ -33,7 +33,7 @@ func TestMiniQuery() {
     - depends on generated graph - will validate when build
     - support edge filter
 - generate entql
-    - function is not complete as entsql
+    - function is not as complete as entsql
     - do not depends on generated graph - validate when entql to sql
 
 ```go
