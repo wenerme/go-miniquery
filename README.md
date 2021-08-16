@@ -11,17 +11,49 @@
 [report-card-img]: https://goreportcard.com/badge/github.com/wenerme/go-miniquery
 [report-card]: https://goreportcard.com/report/github.com/wenerme/go-miniquery
 
-SQL Where like filter express for entql and gorm
+SQL Where like __safe__ filter expression for entql and gorm
 
+## gorm
 
 ```go
 package main
 
-import 	"gorm.io/gorm"
+import "gorm.io/gorm"
 
-func TestMiniQuery(){
+func TestMiniQuery() {
 	var db *gorm.DB
 	// build to username = ?
 	db.Model(User{}).Scopes(ApplyMiniQuery(`username="wener"`)).Rows()
+}
+```
+
+## entql
+
+- generate entsql - recommend
+    - depends on generated graph - will validate when build
+    - support edge filter
+- generate entql
+    - function is not complete as entsql
+    - do not depends on generated graph - validate when entql to sql
+
+```go
+package main
+
+import "entgo.io/ent/dialect/sql"
+
+func TestEntSQL() {
+	var s *sql.Selector
+	s.Where(sql.P(func(builder *sql.Builder) {
+		b := &entmq.MiniQLToEntSQLBuilder{
+			Node:        node,          // *sqlgraph.Node
+			Graph:       schemaGraph,   // *sqlgraph.Schema
+			QueryString: query,
+		}
+		builder.Join(b)
+		err := b.Err()
+		if err != nil {
+			panic(errors.Wrap(err, "invalid query"))
+		}
+	}))
 }
 ```

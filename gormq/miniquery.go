@@ -39,6 +39,7 @@ func ApplyMiniQuery(query string) func(db *gorm.DB) *gorm.DB {
 		return WireMiniQuery(db, query)
 	}
 }
+
 func WireMiniQuery(db *gorm.DB, query string) *gorm.DB {
 	if query == "" {
 		return db
