@@ -25,10 +25,10 @@ ArgumentList        <- '(' _ {p.AddMark()} (Argument ( _ ',' _ Argument)* _ ','?
 Argument            <- Expression
 # Argument            <- Value / Identifier
 
-Reference     <- Identifier '.' Reference
+Reference     <- IdentifierReference
               / JsonReference
               / Identifier
-
+IdentifierReference <- {p.AddMark()} Identifier '.' Identifier ( '.' Identifier)* {p.PopIdentifierReference()}
 JsonReference <- Identifier '->' (JsonReference / Identifier)
 Identifier    <- !"not" <[a-zA-Z]([_a-zA-Z0-9])*> {p.AddName(text)}
 

@@ -65,6 +65,18 @@ func (t *Tree) Pop() *Node {
 	return v
 }
 
+func (t *Tree) PopIdentifierReference() {
+	nodes := t.popMarked()
+	names := make([]string, 0, len(nodes))
+	for _, node := range nodes {
+		names = append(names, node.Name)
+	}
+	t.Push(&Node{
+		Type:  ReferenceNodeType,
+		Names: names,
+	})
+}
+
 func (t *Tree) PopFunction() {
 	a := t.Pop()
 	n := t.Pop()
@@ -148,15 +160,19 @@ func (t *Tree) AddMark() {
 	t.marks = append(t.marks, len(t.Stack))
 }
 
-func (t *Tree) PopArray() {
+func (t *Tree) popMarked() []*Node {
 	mark := t.PopMark()
 	elements := make([]*Node, len(t.Stack)-mark)
 	copy(elements, t.Stack[mark:len(t.Stack)])
 	t.Stack = t.Stack[0:mark]
+	return elements
+}
+
+func (t *Tree) PopArray() {
 	t.Push(&Node{
 		Type:      ValueNodeType,
 		ValueType: ArrayValueType,
-		Array:     elements,
+		Array:     t.popMarked(),
 	})
 }
 

@@ -57,6 +57,7 @@ func WireMiniQuery(db *gorm.DB, query string) *gorm.DB {
 	}
 	var vals []interface{}
 	buf := &strings.Builder{}
+	joined := map[string][]string{}
 	qb := &queryBuilder{
 		buf: buf,
 		addValue: func(i interface{}) {
@@ -68,6 +69,24 @@ func WireMiniQuery(db *gorm.DB, query string) *gorm.DB {
 				return s, fmt.Errorf("field not found: %q", s)
 			}
 			return n, nil
+		},
+		join: func(s string, fieldName string) (string, error) {
+			r := schema.Relationships.Relations[s]
+			if r == nil {
+				return "", fmt.Errorf("relation not found: %q", s)
+			}
+
+			var name string
+			var ok bool
+			if name, ok = getDBName(r.FieldSchema, fieldName); !ok {
+				return "", fmt.Errorf("relation field not found: %q.%q", s, fieldName)
+			}
+			if _, ok := joined[s]; !ok {
+				db = db.Joins(s)
+			}
+			joined[s] = append(joined[s], name)
+			// gorm Join logic name
+			return s + "__" + name, nil
 		},
 		quote: func(builder *strings.Builder, name string) {
 			db.QuoteTo(builder, name)
@@ -87,6 +106,21 @@ type queryBuilder struct {
 	addValue func(interface{})
 	mapName  func(s string) (string, error)
 	quote    func(builder *strings.Builder, name string)
+	join     func(s string, f string) (string, error)
+}
+
+func (qb *queryBuilder) visitReference(node *miniquery.Node) (err error) {
+	if len(node.Names) != 2 {
+		return errors.New("only support join one level")
+	}
+	name, err := qb.join(node.Names[0], node.Names[1])
+	if err != nil {
+		return err
+	}
+	quote := qb.quote
+	buf := qb.buf
+	quote(buf, name)
+	return
 }
 
 func (qb *queryBuilder) visitIdentifier(node *miniquery.Node) (err error) {
@@ -125,6 +159,8 @@ func (qb *queryBuilder) visit(node *miniquery.Node) (err error) {
 		addValue(node.Value())
 	case miniquery.IdentifierNodeType:
 		err = qb.visitIdentifier(node)
+	case miniquery.ReferenceNodeType:
+		err = qb.visitReference(node)
 	case miniquery.ParenthesesExpressionType:
 		buf.WriteRune('(')
 		err = visit(node.Expression)

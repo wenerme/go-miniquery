@@ -2,9 +2,10 @@ package miniquery
 
 func Parse(s string) (*Node, error) {
 	p := &MiniQueryPeg{Tree: &Tree{}, Buffer: s}
-	p.Init()
-	err := p.Parse()
-	if err != nil {
+	if err := p.Init(); err != nil {
+		return nil, err
+	}
+	if err := p.Parse(); err != nil {
 		return nil, err
 	}
 	p.Execute()

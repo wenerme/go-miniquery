@@ -23,7 +23,7 @@ func TestRareCase(t *testing.T) {
 		{E: "a in [1]", Q: "a in (1)"},
 	} {
 		p := &MiniQueryPeg{Tree: &Tree{}, Buffer: v.Q}
-		p.Init()
+		assert.NoError(t, p.Init())
 		if assert.NoError(t, p.Parse(), v) {
 			p.Execute()
 			fmt.Printf("%s\t---->\t %s : %v\n", v, Build(p.Stack[0]), p.Stack[0])
@@ -73,11 +73,12 @@ func TestParsing(t *testing.T) {
 		`func( a, name in (1,2,3) )`,
 		`func( a, name in ('a','b') )`,
 		`date('2021-05-12T00:00:00+08:00')`,
+		`profile.age > 10`,
 		// unsupported
 		// `date(created_at) between date('2021-05-12T00:00:00+08:00') and date('2021-05-14T00:00:00+08:00')`,
 	} {
 		p := &MiniQueryPeg{Tree: &Tree{}, Buffer: v}
-		p.Init()
+		assert.NoError(t, p.Init())
 		if !assert.NoError(t, p.Parse(), v) {
 			fmt.Println("PrintSyntaxTree")
 			p.PrintSyntaxTree()
@@ -100,8 +101,9 @@ func TestParsing(t *testing.T) {
 }
 
 func TestParse(t *testing.T) {
+	// p := &MiniQueryPeg{Tree: &Tree{}, Pretty: true, Buffer: `profile.age > 10`}
 	p := &MiniQueryPeg{Tree: &Tree{}, Pretty: true, Buffer: "a > 1 and  (  b != 2 or name like '%wener%') or ( age == 0 )"}
-	p.Init()
+	assert.NoError(t, p.Init())
 	assert.NoError(t, p.Parse())
 	fmt.Println("PrintSyntaxTree")
 	// p.PrintSyntaxTree()

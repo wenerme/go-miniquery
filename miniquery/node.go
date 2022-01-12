@@ -14,6 +14,7 @@ const (
 	ValueNodeType             NodeType = "value"       // Node.Value
 	OperationNodeType         NodeType = "operation"   // Node.Operation
 	IdentifierNodeType        NodeType = "identifier"  // Node.Name
+	ReferenceNodeType         NodeType = "reference"   // Node.Names
 	PredicatesExpressionType  NodeType = "predicates"  // field is null - Node.Left, Node.Op
 	CompareExpressionType     NodeType = "compare"     // Node.Left, Node.Op, Node.Right
 	LogicExpressionType       NodeType = "logic"       // Node.Left, Node.Op, Node.Right
@@ -43,6 +44,7 @@ type Node struct {
 
 	Operation OpType
 	Name      string
+	Names     []string // Reference
 
 	Expression *Node
 
@@ -80,7 +82,7 @@ func (n Node) IsValue() bool {
 
 func (n Node) IsExpression() bool {
 	switch n.Type {
-	case IdentifierNodeType, ValueNodeType, OperationNodeType:
+	case IdentifierNodeType, ValueNodeType, OperationNodeType, ReferenceNodeType:
 		return false
 	}
 	return true
@@ -120,6 +122,8 @@ func (n Node) String() string {
 		buf.WriteString(n.Operation)
 	case IdentifierNodeType:
 		buf.WriteString(n.Name)
+	case ReferenceNodeType:
+		buf.WriteString(strings.Join(n.Names, "."))
 	case FunctionExpressionType:
 		buf.WriteString(n.Name)
 		for _, v := range n.Params {
@@ -169,6 +173,8 @@ func Build(n *Node) string {
 			buf.WriteString(printPretty(node.Operation))
 		case IdentifierNodeType:
 			buf.WriteString(node.Name)
+		case ReferenceNodeType:
+			buf.WriteString(strings.Join(node.Names, "."))
 		case FunctionExpressionType:
 			buf.WriteString(n.Name)
 			buf.WriteRune('(')

@@ -15,6 +15,8 @@ SQL Where like __safe__ filter expression for entql and gorm
 
 ## gorm
 
+- use reflect to get model graph
+
 ```go
 package main
 
