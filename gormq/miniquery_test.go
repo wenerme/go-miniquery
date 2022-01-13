@@ -43,7 +43,9 @@ func TestQueryBuild(t *testing.T) {
 		Vars  []interface{}
 		Err   bool
 	}{
-		{Q: `Profile.age > 1`, Where: "`Profile__age` > ?", Vars: []interface{}{1}},
+		// pg do not support reference alias in where
+		// {Q: `Profile.age > 1`, Where: "`Profile__age` > ?", Vars: []interface{}{1}},
+		{Q: `Profile.AGE > 1`, Where: "`Profile`.`age` > ?", Vars: []interface{}{1}},
 		{Q: `Username = 'wener' and fullName is not null`, Where: "`username` = ? and `full_name` is not null", Vars: []interface{}{"wener"}},
 		{Q: `2021 = date(CreatedAt)`, Where: "? = date(`created_at`)", Vars: []interface{}{2021}},
 		{Q: `2021 > 0`},

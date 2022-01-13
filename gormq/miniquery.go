@@ -58,6 +58,9 @@ func WireMiniQuery(db *gorm.DB, query string) *gorm.DB {
 	var vals []interface{}
 	buf := &strings.Builder{}
 	joined := map[string][]string{}
+	quote := func(builder *strings.Builder, name string) {
+		db.QuoteTo(builder, name)
+	}
 	qb := &queryBuilder{
 		buf: buf,
 		addValue: func(i interface{}) {
@@ -86,11 +89,10 @@ func WireMiniQuery(db *gorm.DB, query string) *gorm.DB {
 			}
 			joined[s] = append(joined[s], name)
 			// gorm Join logic name
-			return s + "__" + name, nil
+			// fixme quote
+			return s + "." + name, nil
 		},
-		quote: func(builder *strings.Builder, name string) {
-			db.QuoteTo(builder, name)
-		},
+		quote: quote,
 	}
 	err = qb.visit(ast)
 	if err != nil {
