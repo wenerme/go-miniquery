@@ -9,6 +9,8 @@ run:
     - ".*ignored_.*.go$"
     - "generated.go$"
     - model_gen.go
+  # prevent ci timeout
+  timeout: 5m
 
 linters:
   disable-all: true

@@ -16,6 +16,7 @@ SQL Where like __safe__ filter expression for entql and gorm
 ## gorm
 
 - use reflect to get model graph
+- support join relation
 
 ```go
 package main
@@ -24,8 +25,8 @@ import "gorm.io/gorm"
 
 func TestMiniQuery() {
 	var db *gorm.DB
-	// build to username = ?
-	db.Model(User{}).Scopes(ApplyMiniQuery(`username="wener"`)).Rows()
+	// build to username = ? and Profile__age > ?
+	db.Model(User{}).Scopes(ApplyMiniQuery(`username="wener" && Profile.age > 18`)).Rows()
 }
 ```
 
