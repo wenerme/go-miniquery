@@ -9,45 +9,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// need to generate schema
-//func TestEntSQLEdge(t *testing.T) {
-//	for _, test := range []struct {
-//		E    string
-//		Q    string
-//		Args []interface{}
-//	}{
-//		{Q: `not has_edge(labels)`},
-//		{
-//			Q:    `a > 10 and has_edge(owningUser,name = 'abc')`,
-//			E:    `SELECT * FROM "accounts" WHERE "a" > $1 AND "accounts"."owning_user_id" IN (SELECT "users"."id" FROM "users" WHERE "name" = $2)`,
-//			Args: []interface{}{10, "abc"},
-//		},
-//		{Q: `has_edge(labels,name = 'abc')`},
-//		{Q: `has_edge(labels,name in ('Test'))`},
-//	} {
-//		node := ent.GetSQLSchemaNodeByType("Account")
-//		tab := sql.Table(node.Table)
-//
-//		base := sql.Dialect(dialect.Postgres).
-//			Select().
-//			From(tab)
-//		base.Where(sql.P(func(builder *sql.Builder) {
-//			mb := &entmq.MiniQLToEntSQLBuilder{QueryString: test.Q, Node: node, DisableTypeCasting: true}
-//			builder.Join(mb)
-//			assert.NoError(t, mb.Err())
-//		}))
-//		s, args := base.Query()
-//		assert.NoError(t, base.Err())
-//		fmt.Printf("Query: %v\n\tSelect: %v\n\tArgs: %v\n", test.Q, s, args)
-//		if test.E != "" {
-//			assert.Equal(t, test.E, s)
-//		}
-//		if test.Args != nil {
-//			assert.EqualValues(t, test.Args, args)
-//		}
-//	}
-//}
-
 func TestEntSQL(t *testing.T) {
 	for _, test := range []struct {
 		E    string
@@ -68,7 +29,7 @@ func TestEntSQL(t *testing.T) {
 		{E: `DATE($1)`, Q: `date("2019-01-01 12:12")`, Args: []interface{}{"2019-01-01 12:12"}},
 		{E: `DATE("a")`, Q: `date(a)`},
 		// 暂不支持
-		//{E: `DATE("created_at") between date('2021-05-12T00:00:00+08:00') and date('2021-05-14T00:00:00+08:00')`, Q: `date(created_at) between date('2021-05-12T00:00:00+08:00') and date('2021-05-14T00:00:00+08:00')`},
+		// {E: `DATE("created_at") between date('2021-05-12T00:00:00+08:00') and date('2021-05-14T00:00:00+08:00')`, Q: `date(created_at) between date('2021-05-12T00:00:00+08:00') and date('2021-05-14T00:00:00+08:00')`},
 	} {
 		b := &entmq.MiniQLToEntSQLBuilder{QueryString: test.Q, DisableTypeCasting: true}
 		b.SetDialect(dialect.Postgres)

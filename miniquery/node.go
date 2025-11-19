@@ -117,7 +117,7 @@ func (n Node) String() string {
 	case NotExpressionType:
 		buf.WriteString(n.Expression.String())
 	case ValueNodeType:
-		buf.WriteString(fmt.Sprint(n.Value()))
+		_, _ = fmt.Fprint(buf, n.Value())
 	case OperationNodeType:
 		buf.WriteString(n.Operation)
 	case IdentifierNodeType:
@@ -209,13 +209,13 @@ func buildValue(buf *strings.Builder, node *Node, visit func(node *Node)) {
 		}
 		buf.WriteRune(']')
 	case StringValueType:
-		buf.WriteString(fmt.Sprintf("%q", node.Str))
+		_, _ = fmt.Fprintf(buf, "%q", node.Str)
 	default:
 		value := node.Value()
 		if value == nil {
 			buf.WriteString("null")
 		} else {
-			buf.WriteString(fmt.Sprint(value))
+			_, _ = fmt.Fprint(buf, value)
 		}
 	}
 }

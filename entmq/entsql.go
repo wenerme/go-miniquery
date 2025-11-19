@@ -13,26 +13,6 @@ import (
 	"github.com/pkg/errors"
 )
 
-//func ApplyQueries(node *sqlgraph.Node, query []string) func(s *sql.Selector) {
-//	return ApplyQuery(node, miniquery.Join(query))
-//}
-//func ApplyQuery(node *sqlgraph.Node, query string) func(s *sql.Selector) {
-//	return func(s *sql.Selector) {
-//		if strings.TrimSpace(query) == "" {
-//			return
-//		}
-//		s.Where(sql.P(func(b *sql.Builder) {
-//			mb := &MiniQLToEntSQLBuilder{
-//				QueryString: query,
-//				SQLBuilder:  b,
-//			}
-//			if err := mb.Build(); err != nil {
-//				s.AddError(err)
-//			}
-//		}))
-//	}
-//}
-
 type MiniQLToEntSQLBuilder struct {
 	Node        *sqlgraph.Node
 	QueryString string
@@ -41,13 +21,6 @@ type MiniQLToEntSQLBuilder struct {
 	Graph       *sqlgraph.Schema
 	sql.Builder
 	DisableTypeCasting bool
-}
-
-func (mb *MiniQLToEntSQLBuilder) with(b *sql.Builder, act func()) {
-	a := mb.SQLBuilder
-	defer func() { mb.SQLBuilder = a }()
-	mb.SQLBuilder = b
-	act()
 }
 
 // Query impl sql.Querier
@@ -68,6 +41,7 @@ func (mb *MiniQLToEntSQLBuilder) Query() (string, []interface{}) {
 	return mb.Builder.Query()
 }
 
+//nolint:golint,gocyclo
 func (mb *MiniQLToEntSQLBuilder) visit(node *miniquery.Node) (err error) {
 	visit := mb.visit
 	s := mb.SQLBuilder

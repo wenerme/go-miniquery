@@ -1,4 +1,4 @@
-//go:generate peg -switch miniquery.peg
+//go:generate go tool -modfile=../go.tool.mod peg -switch miniquery.peg
 package miniquery
 
 import (
@@ -80,15 +80,19 @@ func (t *Tree) PopIdentifierReference() {
 func (t *Tree) PopFunction() {
 	a := t.Pop()
 	n := t.Pop()
-	if !(n.Type == IdentifierNodeType && a.Type == ValueNodeType && a.ValueType == ArrayValueType) {
-		t.AddError(fmt.Errorf("invalid function exp %q %q", n.Type, a.Type))
+	if a == nil || n == nil {
+		t.AddError(fmt.Errorf("invalid function exp %q %q", n, a))
 		return
 	}
-	t.Push(&Node{
-		Type:   FunctionExpressionType,
-		Name:   n.Name,
-		Params: a.Array,
-	})
+	if n.Type == IdentifierNodeType && a.Type == ValueNodeType && a.ValueType == ArrayValueType {
+		t.Push(&Node{
+			Type:   FunctionExpressionType,
+			Name:   n.Name,
+			Params: a.Array,
+		})
+	} else {
+		t.AddError(fmt.Errorf("invalid function exp %q %q", n.Type, a.Type))
+	}
 }
 
 func (t *Tree) PopBetween() {
