@@ -1,9 +1,10 @@
 package entmq
 
 import (
+	"log/slog"
+
 	"entgo.io/ent/entql"
 	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
 	"github.com/wenerme/go-miniquery/miniquery"
 )
 
@@ -55,7 +56,7 @@ func (mb *MiniQLToEntQLBuilder) Build() (p entql.P, err error) {
 	if err == nil && len(mb.stack) > 0 {
 		p = mb.pop().(entql.P)
 		if len(mb.stack) > 1 {
-			logrus.WithField("query", mb.Query).Errorf("unexpected MiniQLBuilder stack size: %q", len(mb.stack))
+			slog.With("query", mb.Query).Error("unexpected MiniQLBuilder stack size", "size", len(mb.stack))
 		}
 	}
 	return
